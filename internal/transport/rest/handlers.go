@@ -7,6 +7,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/okoye-dev/flux-server/internal/middleware"
 	"github.com/okoye-dev/flux-server/internal/models"
+	"github.com/okoye-dev/flux-server/internal/services"
 )
 
 // HealthHandler handles health check requests
@@ -31,13 +32,22 @@ func ProfileHandler(w http.ResponseWriter, r *http.Request) {
 
 	userEmail, _ := middleware.GetUserEmail(r)
 
-	// TODO: Fetch profile data from user_profiles table using Supabase client
-	// For now, return basic user info with placeholder for profile
-	authUserID, _ := uuid.Parse(userID)
-	profile := models.UserProfile{
-		AuthUserID:  &authUserID,
-		DisplayName: &userEmail, // Default to username
-		Metadata:    map[string]any{},
+	// Fetch profile data from user_profiles table
+	profileService, err := services.NewProfileService()
+	if err != nil {
+		WriteInternalServerError(w, "Failed to create profile service", err.Error())
+		return
+	}
+
+	profile, err := profileService.GetUserProfile(userID)
+	if err != nil {
+		// If profile not found, create a placeholder
+		authUserID, _ := uuid.Parse(userID)
+		profile = &models.UserProfile{
+			AuthUserID:  &authUserID,
+			DisplayName: &userEmail, // Default to username
+			Metadata:    map[string]any{},
+		}
 	}
 
 	response := ProfileResponse{
@@ -45,7 +55,7 @@ func ProfileHandler(w http.ResponseWriter, r *http.Request) {
 		UserEmail: userEmail,
 		Message:   MsgWelcomeToProfile,
 		Timestamp: time.Now(),
-		Profile:   profile,
+		Profile:   *profile,
 	}
 
 	WriteProfileResponse(w, response)

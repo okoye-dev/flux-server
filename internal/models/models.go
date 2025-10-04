@@ -8,21 +8,23 @@ import (
 
 // Farmer represents a farmer in the system
 type Farmer struct {
-	ID          int64     `json:"id" db:"id"`
-	Name        string    `json:"name" db:"name"`
-	PhoneNumber string    `json:"phone_number" db:"phone_number"`
-	CropType    string    `json:"crop_type" db:"crop_type"`
-	LocationID  int64     `json:"location_id" db:"location_id"`
-	Language    string    `json:"language" db:"language"`
-	CreatedAt   time.Time `json:"created_at" db:"created_at"`
+	ID          int64      `json:"id" db:"id"`
+	AuthUserID  *uuid.UUID `json:"auth_user_id" db:"auth_user_id"` // Links to auth.users.id
+	Name        string     `json:"name" db:"name"`
+	PhoneNumber string     `json:"phone_number" db:"phone_number"`
+	CropType    string     `json:"crop_type" db:"crop_type"`
+	LocationID  int64      `json:"location_id" db:"location_id"`
+	Language    string     `json:"language" db:"language"`
+	CreatedAt   time.Time  `json:"created_at" db:"created_at"`
 }
 
 // ExtensionOfficer represents an extension officer in the system
 type ExtensionOfficer struct {
-	ID                  int64  `json:"id" db:"id"`
-	Name                string `json:"name" db:"name"`
-	PhoneNumber         string `json:"phone_number" db:"phone_number"`
-	AssignedLocationID  *int64 `json:"assigned_location_id" db:"assigned_location_id"`
+	ID                  int64      `json:"id" db:"id"`
+	AuthUserID          *uuid.UUID `json:"auth_user_id" db:"auth_user_id"` // Links to auth.users.id
+	Name                string     `json:"name" db:"name"`
+	PhoneNumber         string     `json:"phone_number" db:"phone_number"`
+	AssignedLocationID  *int64     `json:"assigned_location_id" db:"assigned_location_id"`
 }
 
 // Role represents a user role in the system

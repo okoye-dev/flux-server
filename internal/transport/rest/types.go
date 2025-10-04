@@ -60,6 +60,16 @@ type UserInfo struct {
 type SignupRequest struct {
 	Username string `json:"username" validate:"required,min=3,max=20"`
 	Password string `json:"password" validate:"required,min=6"`
+	Role     string `json:"role,omitempty"` // Optional role name: "farmer", "extension_officer", defaults to "farmer"`
+	
+	// Optional farmer-specific fields
+	PhoneNumber string `json:"phone_number,omitempty"`
+	CropType    string `json:"crop_type,omitempty"`
+	LocationID  int64  `json:"location_id,omitempty"`
+	Language    string `json:"language,omitempty"` // Defaults to "en"
+	
+	// Optional extension officer fields
+	AssignedLocationID int64 `json:"assigned_location_id,omitempty"`
 }
 
 // SigninRequest represents signin request

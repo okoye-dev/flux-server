@@ -8,10 +8,10 @@ import (
 	"os"
 
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/okoye-dev/flux-server/internal/services"
 	"github.com/supabase-community/gotrue-go/types"
 	"github.com/supabase-community/supabase-go"
 )
-
 
 // UserClaims represents JWT claims
 type UserClaims struct {
@@ -78,8 +78,27 @@ func SignupHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Create user profile automatically
-	// TODO: Create user profile in user_profiles table
-	// For now, we'll just return the auth response
+	profileService, err := services.NewProfileService()
+	if err != nil {
+		http.Error(w, "Failed to create profile service: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Create signup data from request
+	signupData := &services.SignupData{
+		PhoneNumber:        req.PhoneNumber,
+		CropType:           req.CropType,
+		LocationID:         req.LocationID,
+		Language:           req.Language,
+		AssignedLocationID: req.AssignedLocationID,
+	}
+
+	_, err = profileService.CreateUserProfile(authResponse.User.ID.String(), req.Username, req.Role, signupData)
+	if err != nil {
+		// Log error but don't fail signup - user is created in auth
+		// TODO: Add proper logging
+		_ = err
+	}
 
 	// Return the response
 	w.Header().Set("Content-Type", "application/json")
