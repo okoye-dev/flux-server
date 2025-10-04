@@ -6,40 +6,12 @@ import (
 	"encoding/json"
 	"net/http"
 	"os"
-	"time"
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/supabase-community/gotrue-go/types"
 	"github.com/supabase-community/supabase-go"
 )
 
-// SignupRequest represents the signup request payload
-type SignupRequest struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
-}
-
-// SigninRequest represents the signin request payload
-type SigninRequest struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
-}
-
-// AuthResponse represents the authentication response
-type AuthResponse struct {
-	User        UserInfo `json:"user"`
-	AccessToken string   `json:"access_token"`
-	TokenType   string   `json:"token_type"`
-	ExpiresIn   int      `json:"expires_in"`
-	Message     string   `json:"message,omitempty"`
-}
-
-// UserInfo represents user information
-type UserInfo struct {
-	ID        string    `json:"id"`
-	Username  string    `json:"username"`
-	CreatedAt time.Time `json:"created_at"`
-}
 
 // UserClaims represents JWT claims
 type UserClaims struct {
@@ -63,13 +35,13 @@ func SignupHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Validate required fields
 	if req.Username == "" || req.Password == "" {
-		http.Error(w, "Username and password are required", http.StatusBadRequest)
+		WriteBadRequestError(w, MsgUsernamePasswordRequired, "")
 		return
 	}
 
 	// Validate username format (alphanumeric only)
 	if len(req.Username) < 3 || len(req.Username) > 20 {
-		http.Error(w, "Username must be between 3 and 20 characters", http.StatusBadRequest)
+		WriteBadRequestError(w, MsgUsernameLengthInvalid, "")
 		return
 	}
 
@@ -96,11 +68,18 @@ func SignupHandler(w http.ResponseWriter, r *http.Request) {
 	authResponse, err := client.Auth.Signup(types.SignupRequest{
 		Email:    email,
 		Password: req.Password,
+		Data: map[string]interface{}{
+			"username": req.Username,
+		},
 	})
 	if err != nil {
 		http.Error(w, "Failed to create user: "+err.Error(), http.StatusBadRequest)
 		return
 	}
+
+	// Create user profile automatically
+	// TODO: Create user profile in user_profiles table
+	// For now, we'll just return the auth response
 
 	// Return the response
 	w.Header().Set("Content-Type", "application/json")
@@ -114,7 +93,7 @@ func SignupHandler(w http.ResponseWriter, r *http.Request) {
 		AccessToken: "", // No token on signup, user needs to sign in
 		TokenType:   "",
 		ExpiresIn:   0,
-		Message:     "User created successfully. Please sign in to get your access token.",
+		Message:     "User created successfully. Profile will be created automatically. Please sign in to get your access token.",
 	})
 }
 

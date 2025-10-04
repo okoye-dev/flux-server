@@ -1,19 +1,13 @@
 package rest
 
 import (
-	"encoding/json"
 	"net/http"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/okoye-dev/flux-server/internal/middleware"
+	"github.com/okoye-dev/flux-server/internal/models"
 )
-
-// HealthResponse represents the health check response
-type HealthResponse struct {
-	Status    string    `json:"status"`
-	Timestamp time.Time `json:"timestamp"`
-	Service   string    `json:"service"`
-}
 
 // HealthHandler handles health check requests
 func HealthHandler(w http.ResponseWriter, r *http.Request) {
@@ -23,62 +17,55 @@ func HealthHandler(w http.ResponseWriter, r *http.Request) {
 		Service:   "flux-server",
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	
-	if err := json.NewEncoder(w).Encode(response); err != nil {
-		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
-		return
-	}
+	WriteHealthResponse(w, response)
 }
+
 
 // ProfileHandler handles user profile requests (protected route)
 func ProfileHandler(w http.ResponseWriter, r *http.Request) {
 	userID, ok := middleware.GetUserID(r)
 	if !ok {
-		http.Error(w, "User ID not found in context", http.StatusInternalServerError)
+		WriteInternalServerError(w, MsgUserIDNotFound, "")
 		return
 	}
 
 	userEmail, _ := middleware.GetUserEmail(r)
 
-	response := map[string]interface{}{
-		"user_id":    userID,
-		"user_email": userEmail,
-		"message":    "Welcome to your profile",
-		"timestamp":  time.Now(),
+	// TODO: Fetch profile data from user_profiles table using Supabase client
+	// For now, return basic user info with placeholder for profile
+	authUserID, _ := uuid.Parse(userID)
+	profile := models.UserProfile{
+		AuthUserID:  &authUserID,
+		DisplayName: &userEmail, // Default to username
+		Metadata:    map[string]any{},
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	
-	if err := json.NewEncoder(w).Encode(response); err != nil {
-		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
-		return
+	response := ProfileResponse{
+		UserID:    userID,
+		UserEmail: userEmail,
+		Message:   MsgWelcomeToProfile,
+		Timestamp: time.Now(),
+		Profile:   profile,
 	}
+
+	WriteProfileResponse(w, response)
 }
 
 // ProtectedDataHandler handles protected data requests
 func ProtectedDataHandler(w http.ResponseWriter, r *http.Request) {
 	userID, ok := middleware.GetUserID(r)
 	if !ok {
-		http.Error(w, "User ID not found in context", http.StatusInternalServerError)
+		WriteInternalServerError(w, MsgUserIDNotFound, "")
 		return
 	}
 
-	response := map[string]interface{}{
-		"data":      "This is protected data",
-		"user_id":   userID,
-		"timestamp": time.Now(),
+	response := ProtectedDataResponse{
+		Data:      MsgProtectedData,
+		UserID:    userID,
+		Timestamp: time.Now(),
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	
-	if err := json.NewEncoder(w).Encode(response); err != nil {
-		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
-		return
-	}
+	WriteProtectedDataResponse(w, response)
 }
 
 // NewRouter creates and returns a new HTTP router with all routes
@@ -88,12 +75,11 @@ func NewRouter() *http.ServeMux {
 	// Public endpoints
 	mux.HandleFunc("/health", HealthHandler)
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(map[string]string{
-			"message": "Welcome to the Flux Server",
-			"version": "1.0.0",
-		})
+		response := RootResponse{
+			Message: MsgWelcomeToFlux,
+			Version: "1.0.0",
+		}
+		WriteRootResponse(w, response)
 	})
 	
 	// Authentication endpoints (username/password only)
