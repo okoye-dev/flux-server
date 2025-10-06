@@ -39,7 +39,6 @@ func (s MainBotScene) Start(bot *chatbot.Bot) {
 
 		// Check if this is from a group chat and ignore it
 		if s.isGroupChat(notification) {
-			log.Printf("Ignoring group chat message: %s", text)
 			return
 		}
 
@@ -61,7 +60,6 @@ func (s MainBotScene) Start(bot *chatbot.Bot) {
 
 // routeCommand routes commands to appropriate handlers
 func (s *MainBotScene) routeCommand(notification *chatbot.Notification, message string) {
-	log.Printf("Routing command: %s", message)
 	
 	// Handle different commands
 	switch {
@@ -88,8 +86,6 @@ func (s *MainBotScene) routeCommand(notification *chatbot.Notification, message 
 
 // handleStart handles the start command
 func (s *MainBotScene) handleStart(notification *chatbot.Notification) {
-	log.Printf("Handling start command")
-	
 	// Get sender info
 	sender, err := notification.Sender()
 	if err != nil {
@@ -98,21 +94,16 @@ func (s *MainBotScene) handleStart(notification *chatbot.Notification) {
 	}
 	
 	welcomeMessage := fmt.Sprintf("Hey, %s! %s", sender, MSG_WELCOME)
-	log.Printf("Sending welcome message: %s", welcomeMessage)
-	
-	// Try to send the message
 	notification.AnswerWithText(welcomeMessage)
-	log.Printf("Welcome message sent successfully")
 }
 
 // handleGreeting handles hi/hey commands
 func (s *MainBotScene) handleGreeting(notification *chatbot.Notification) {
-	log.Printf("Handling greeting command")
-	
 	// Get sender info
 	sender, err := notification.Sender()
 	if err != nil {
 		sender = "there"
+		log.Printf("Error getting sender: %v", err)
 	}
 	
 	greeting := fmt.Sprintf("Hey %s! 👋\n\n%s", sender, MSG_WELCOME)
@@ -121,13 +112,11 @@ func (s *MainBotScene) handleGreeting(notification *chatbot.Notification) {
 
 // handleHelp handles the help command
 func (s *MainBotScene) handleHelp(notification *chatbot.Notification) {
-	log.Printf("Handling help command")
 	notification.AnswerWithText(MSG_HELP)
 }
 
 // handleStatus handles the status command
 func (s *MainBotScene) handleStatus(notification *chatbot.Notification) {
-	log.Printf("Handling status command")
 	
 	// Get farmer profile from state
 	stateData := notification.GetStateData()
@@ -161,7 +150,6 @@ You can:
 
 // handleInvalidCommand handles invalid commands
 func (s *MainBotScene) handleInvalidCommand(notification *chatbot.Notification) {
-	log.Printf("Handling invalid command")
 	notification.AnswerWithText(MSG_INVALID_COMMAND)
 }
 

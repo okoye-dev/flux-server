@@ -64,7 +64,6 @@ type AIAdviceResponse struct {
 
 // CallGeminiAI generates personalized farming advice using Gemini API
 func (ai *AIService) CallGeminiAI(request AIAdviceRequest) (*AIAdviceResponse, error) {
-	log.Printf("🤖 Calling Gemini AI for farmer: %s, crop: %s", request.FarmerProfile.Name, request.FarmerProfile.Crop)
 	
 	// Simulate API call delay
 	time.Sleep(2 * time.Second)
@@ -80,13 +79,11 @@ func (ai *AIService) CallGeminiAI(request AIAdviceRequest) (*AIAdviceResponse, e
 		GeneratedAt:      time.Now().Format(time.RFC3339),
 	}
 	
-	log.Printf("✅ Gemini AI response generated with %d%% confidence", response.Confidence)
 	return response, nil
 }
 
 // GetWeatherData fetches weather information for a location
 func (ai *AIService) GetWeatherData(location string) (*WeatherData, error) {
-	log.Printf("🌤️ Fetching weather data for: %s", location)
 	
 	// Simulate API call delay
 	time.Sleep(1 * time.Second)
@@ -100,13 +97,11 @@ func (ai *AIService) GetWeatherData(location string) (*WeatherData, error) {
 		Date:        time.Now().Format("2006-01-02"),
 	}
 	
-	log.Printf("✅ Weather data retrieved: %.1f°C, %s", weatherData.Temperature, weatherData.Condition)
 	return weatherData, nil
 }
 
 // GetMarketData fetches market price information for a crop
 func (ai *AIService) GetMarketData(cropType, location string) (*MarketData, error) {
-	log.Printf("💰 Fetching market data for: %s in %s", cropType, location)
 	
 	// Simulate API call delay
 	time.Sleep(1 * time.Second)
@@ -122,13 +117,11 @@ func (ai *AIService) GetMarketData(cropType, location string) (*MarketData, erro
 		Trend:    "up",
 	}
 	
-	log.Printf("✅ Market data retrieved: %s%.2f per %s (%s trend)", marketData.Currency, marketData.Price, marketData.Unit, marketData.Trend)
 	return marketData, nil
 }
 
 // ProcessFeedback processes farmer feedback and returns insights
 func (ai *AIService) ProcessFeedback(farmerProfile FarmerProfile, feedback string) (string, error) {
-	log.Printf("📝 Processing feedback from %s: %s", farmerProfile.Name, feedback)
 	
 	// Simulate processing delay
 	time.Sleep(1 * time.Second)
