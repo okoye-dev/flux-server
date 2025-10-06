@@ -99,6 +99,8 @@ func (s *MainBotScene) handleStart(notification *chatbot.Notification) {
 	
 	welcomeMessage := fmt.Sprintf("Hey, %s! %s", sender, MSG_WELCOME)
 	log.Printf("Sending welcome message: %s", welcomeMessage)
+	
+	// Try to send the message
 	notification.AnswerWithText(welcomeMessage)
 	log.Printf("Welcome message sent successfully")
 }
