@@ -8,6 +8,8 @@ const (
 	CMD_FEEDBACK  = "feedback"
 	CMD_HELP      = "help"
 	CMD_STATUS    = "status"
+	CMD_HI        = "hi"
+	CMD_HEY       = "hey"
 )
 
 // Bot Messages

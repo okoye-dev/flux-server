@@ -67,6 +67,8 @@ func (s *MainBotScene) routeCommand(notification *chatbot.Notification, message 
 	switch {
 	case strings.Contains(message, CMD_START) || message == "":
 		s.handleStart(notification)
+	case strings.Contains(message, CMD_HI) || strings.Contains(message, CMD_HEY):
+		s.handleGreeting(notification)
 	case strings.Contains(message, CMD_REGISTER):
 		s.registrationScene.handleRegistrationStart(notification)
 	case strings.Contains(message, CMD_ADVICE):
@@ -92,10 +94,27 @@ func (s *MainBotScene) handleStart(notification *chatbot.Notification) {
 	sender, err := notification.Sender()
 	if err != nil {
 		sender = "there"
+		log.Printf("Error getting sender: %v", err)
 	}
 	
 	welcomeMessage := fmt.Sprintf("Hey, %s! %s", sender, MSG_WELCOME)
+	log.Printf("Sending welcome message: %s", welcomeMessage)
 	notification.AnswerWithText(welcomeMessage)
+	log.Printf("Welcome message sent successfully")
+}
+
+// handleGreeting handles hi/hey commands
+func (s *MainBotScene) handleGreeting(notification *chatbot.Notification) {
+	log.Printf("Handling greeting command")
+	
+	// Get sender info
+	sender, err := notification.Sender()
+	if err != nil {
+		sender = "there"
+	}
+	
+	greeting := fmt.Sprintf("Hey %s! 👋\n\n%s", sender, MSG_WELCOME)
+	notification.AnswerWithText(greeting)
 }
 
 // handleHelp handles the help command
