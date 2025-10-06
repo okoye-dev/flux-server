@@ -22,17 +22,18 @@ I'm here to help you with:
 • 💰 Market price insights
 • 🤖 AI-powered recommendations
 
-Type "Flux help" to see all commands.`
+Type "help" to see all commands.`
 
 	MSG_HELP = `📋 Available Commands:
 
-• "Flux register" - Register as a farmer
-• "Flux advice" - Get farming advice
-• "Flux feedback" - Send feedback
-• "Flux status" - Check your profile
-• "Flux help" - Show this help
+• "register" - Register as a farmer
+• "advice" - Get farming advice
+• "feedback" - Send feedback
+• "status" - Check your profile
+• "help" - Show this help
+• "hi" or "hey" - Greeting
 
-Just type "Flux" followed by any command!`
+Just type any command directly!`
 
 	MSG_REGISTER_START = `📝 Let's register you as a farmer!
 
@@ -72,14 +73,14 @@ Just type your feedback after "Flux feedback"`
 
 	MSG_INVALID_COMMAND = `❌ I didn't understand that command.
 
-Type "Flux help" to see available commands.`
+Type "help" to see available commands.`
 
 	MSG_REGISTRATION_COMPLETE = `✅ Registration complete!
 
 Your farmer profile has been saved. You can now:
-• Get personalized advice with "Flux advice"
-• Update your status with "Flux feedback"
-• Check your profile with "Flux status"`
+• Get personalized advice with "advice"
+• Update your status with "feedback"
+• Check your profile with "status"`
 
 	MSG_AI_PROCESSING = `🤖 Processing your request with AI...`
 )

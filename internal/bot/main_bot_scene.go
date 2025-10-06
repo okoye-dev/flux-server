@@ -43,15 +43,7 @@ func (s MainBotScene) Start(bot *chatbot.Bot) {
 		}
 
 		// Convert to lowercase for case-insensitive matching
-		lowerText := strings.ToLower(strings.TrimSpace(text))
-
-		// Only respond to messages that start with "Flux"
-		if !strings.HasPrefix(lowerText, "flux") {
-			return
-		}
-
-		// Remove "flux" prefix and get the actual message
-		actualMessage := strings.TrimSpace(strings.TrimPrefix(lowerText, "flux"))
+		actualMessage := strings.ToLower(strings.TrimSpace(text))
 
 		// Route to appropriate handler based on command
 		s.routeCommand(notification, actualMessage)
