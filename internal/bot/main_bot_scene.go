@@ -42,6 +42,16 @@ func (s MainBotScene) Start(bot *chatbot.Bot) {
 			return
 		}
 
+		// Check for ongoing registration first
+		stateData := notification.GetStateData()
+		registrationState := stateData["registration_state"]
+		
+		// If user is in the middle of registration, let the registration scene handle it
+		if registrationState != nil && registrationState != STATE_NONE {
+			// Let the registration scene handle ongoing registration
+			return
+		}
+
 		// Convert to lowercase for case-insensitive matching
 		actualMessage := strings.ToLower(strings.TrimSpace(text))
 
