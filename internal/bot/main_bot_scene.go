@@ -60,7 +60,7 @@ func (s *MainBotScene) routeCommand(notification *chatbot.Notification, message 
 	case strings.Contains(message, CMD_HI) || strings.Contains(message, CMD_HEY):
 		s.handleGreeting(notification)
 	case strings.Contains(message, CMD_REGISTER):
-		s.registrationScene.handleRegistrationStart(notification)
+		s.registrationScene.startRegistration(notification)
 	case strings.Contains(message, CMD_ADVICE):
 		s.adviceScene.handleAdviceRequest(notification)
 	case strings.Contains(message, CMD_FEEDBACK):
@@ -69,8 +69,6 @@ func (s *MainBotScene) routeCommand(notification *chatbot.Notification, message 
 		s.handleHelp(notification)
 	case strings.Contains(message, CMD_STATUS):
 		s.handleStatus(notification)
-	case s.registrationScene.isRegistrationData(message):
-		s.registrationScene.handleRegistrationData(notification, message)
 	default:
 		s.handleInvalidCommand(notification)
 	}
@@ -114,7 +112,7 @@ func (s *MainBotScene) handleStatus(notification *chatbot.Notification) {
 	stateData := notification.GetStateData()
 	farmerProfile, ok := stateData["farmer_profile"].(FarmerProfile)
 	if !ok {
-		notification.AnswerWithText("❌ You're not registered yet. Use 'Flux register' to get started!")
+		notification.AnswerWithText("❌ You're not registered yet. Use 'register' to get started!")
 		return
 	}
 	
@@ -127,8 +125,8 @@ func (s *MainBotScene) handleStatus(notification *chatbot.Notification) {
 📱 **Phone:** %s
 
 You can:
-• Get advice with "Flux advice"
-• Send feedback with "Flux feedback"
+• Get advice with "advice"
+• Send feedback with "feedback"
 • Update your profile anytime`,
 		farmerProfile.Name,
 		farmerProfile.Crop,

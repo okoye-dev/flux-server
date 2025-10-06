@@ -36,15 +36,7 @@ func (s FeedbackCollectionScene) Start(bot *chatbot.Bot) {
 		}
 
 		// Convert to lowercase for case-insensitive matching
-		lowerText := strings.ToLower(strings.TrimSpace(text))
-
-		// Only respond to messages that start with "Flux"
-		if !strings.HasPrefix(lowerText, "flux") {
-			return
-		}
-
-		// Remove "flux" prefix and get the actual message
-		actualMessage := strings.TrimSpace(strings.TrimPrefix(lowerText, "flux"))
+		actualMessage := strings.ToLower(strings.TrimSpace(text))
 
 		// Handle feedback command
 		if strings.Contains(actualMessage, CMD_FEEDBACK) {
@@ -63,7 +55,7 @@ func (s *FeedbackCollectionScene) handleFeedbackRequest(notification *chatbot.No
 	farmerProfile, ok := stateData["farmer_profile"].(FarmerProfile)
 	if !ok {
 		// If no profile found, ask to register first
-		notification.AnswerWithText("❌ Please register first using 'Flux register' to provide feedback.")
+		notification.AnswerWithText("❌ Please register first using 'register' to provide feedback.")
 		return
 	}
 	

@@ -37,15 +37,7 @@ func (s AdviceDeliveryScene) Start(bot *chatbot.Bot) {
 		}
 
 		// Convert to lowercase for case-insensitive matching
-		lowerText := strings.ToLower(strings.TrimSpace(text))
-
-		// Only respond to messages that start with "Flux"
-		if !strings.HasPrefix(lowerText, "flux") {
-			return
-		}
-
-		// Remove "flux" prefix and get the actual message
-		actualMessage := strings.TrimSpace(strings.TrimPrefix(lowerText, "flux"))
+		actualMessage := strings.ToLower(strings.TrimSpace(text))
 
 		// Handle advice command
 		if strings.Contains(actualMessage, CMD_ADVICE) {
@@ -64,7 +56,7 @@ func (s *AdviceDeliveryScene) handleAdviceRequest(notification *chatbot.Notifica
 	farmerProfile, ok := stateData["farmer_profile"].(FarmerProfile)
 	if !ok {
 		// If no profile found, ask to register first
-		notification.AnswerWithText("❌ Please register first using 'Flux register' to get personalized advice.")
+		notification.AnswerWithText("❌ Please register first using 'register' to get personalized advice.")
 		return
 	}
 	

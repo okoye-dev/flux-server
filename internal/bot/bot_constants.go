@@ -14,7 +14,7 @@ const (
 
 // Bot Messages
 const (
-	MSG_WELCOME = `🌱 Welcome to Flux Farm Assistant!
+	MSG_WELCOME = `🌱 Welcome to Farm Assistant!
 
 I'm here to help you with:
 • 📝 Farmer registration
@@ -67,7 +67,7 @@ You can tell me about:
 • "Market update" - Market information
 • Or any other updates
 
-Just type your feedback after "Flux feedback"`
+Just type your feedback after "feedback"`
 
 	MSG_STATUS_CHECK = `👤 Checking your farmer profile...`
 
@@ -87,9 +87,14 @@ Your farmer profile has been saved. You can now:
 
 // Bot States
 const (
-	STATE_IDLE           = "idle"
-	STATE_REGISTERING    = "registering"
-	STATE_WAITING_ADVICE = "waiting_advice"
+	STATE_NONE             = "none"
+	STATE_IDLE             = "idle"
+	STATE_REGISTERING      = "registering"
+	STATE_REGISTER_NAME    = "register_name"
+	STATE_REGISTER_CROP    = "register_crop"
+	STATE_REGISTER_LOCATION = "register_location"
+	STATE_REGISTER_LANGUAGE = "register_language"
+	STATE_WAITING_ADVICE   = "waiting_advice"
 	STATE_COLLECTING_FEEDBACK = "collecting_feedback"
 )
 
