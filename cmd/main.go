@@ -10,6 +10,14 @@ import (
 	"github.com/okoye-dev/flux-server/internal/transport/rest"
 )
 
+// Global bot instance for webhook processing
+var globalBot *services.WhatsAppBot
+
+// GetGlobalBot returns the global bot instance
+func GetGlobalBot() *services.WhatsAppBot {
+	return globalBot
+}
+
 func main() {
 	// Load environment variables from .env file (if it exists)
 	if err := godotenv.Load(); err != nil {
@@ -31,9 +39,9 @@ func main() {
 		}
 		
 		log.Printf("Initializing WhatsApp bot with Instance ID: %s", cfg.WhatsApp.InstanceID)
-		whatsappBot := services.NewWhatsAppBot(cfg.WhatsApp.InstanceID, cfg.WhatsApp.Token)
-		go whatsappBot.Start() // Start bot in a goroutine
-		log.Println("WhatsApp bot started successfully and listening for messages...")
+		globalBot = services.NewWhatsAppBot(cfg.WhatsApp.InstanceID, cfg.WhatsApp.Token)
+		go globalBot.Start() // Start bot in a goroutine for polling
+		log.Println("WhatsApp bot started successfully and polling for messages...")
 	} else {
 		log.Println("WhatsApp bot is disabled")
 	}

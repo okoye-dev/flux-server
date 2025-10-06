@@ -1,122 +1,54 @@
 package services
 
 import (
-	"fmt"
 	"log"
-	"strings"
 
 	chatbot "github.com/green-api/whatsapp-chatbot-golang"
+	"github.com/okoye-dev/flux-server/internal/bot"
 )
 
 // WhatsAppBot represents the WhatsApp bot service
 type WhatsAppBot struct {
-	bot *chatbot.Bot
+	bot       *chatbot.Bot
+	aiService *bot.AIService
+	mainScene *bot.MainBotScene
 }
 
 // NewWhatsAppBot creates a new WhatsApp bot instance
 func NewWhatsAppBot(instanceID, token string) *WhatsAppBot {
-	bot := chatbot.NewBot(instanceID, token)
-	bot.SetStartScene(GreetingScene{})
+	chatbotInstance := chatbot.NewBot(instanceID, token)
+	
+	// Initialize AI service
+	aiService := bot.NewAIService()
+	
+	// Initialize main scene with all sub-scenes
+	mainScene := bot.NewMainBotScene(aiService)
+	
+	// Set the main scene as the start scene
+	chatbotInstance.SetStartScene(*mainScene)
 	
 	return &WhatsAppBot{
-		bot: bot,
+		bot:       chatbotInstance,
+		aiService: aiService,
+		mainScene: mainScene,
 	}
 }
 
-// Start starts the WhatsApp bot
+// Start starts the WhatsApp bot using Green API polling
 func (w *WhatsAppBot) Start() {
-	log.Println("Starting WhatsApp bot...")
+	log.Println("Starting WhatsApp bot with Green API polling...")
 	
 	// Handle errors from the bot
 	go func() {
 		for err := range w.bot.ErrorChannel {
 			if err != nil {
-				log.Printf("\nWhatsApp bot error: %v \n", err)
+				log.Printf("WhatsApp bot error: %v", err)
 			}
 		}
 	}()
 	
+	// Start receiving notifications using Green API polling
 	w.bot.StartReceivingNotifications()
+	log.Println("WhatsApp bot started successfully and polling for messages...")
 }
 
-// GreetingScene handles the main greeting logic
-type GreetingScene struct{}
-
-func (s GreetingScene) Start(bot *chatbot.Bot) {
-	bot.IncomingMessageHandler(func(notification *chatbot.Notification) {
-		// Get the message text
-		text, err := notification.Text()
-		if err != nil {
-			log.Printf("Error getting message text: %v", err)
-			return
-		}
-
-		// Check if this is from a group chat and ignore it
-		if s.isGroupChat(notification) {
-			log.Printf("Ignoring group chat message: %s", text)
-			return
-		}
-
-		// Convert to lowercase for case-insensitive matching
-		lowerText := strings.ToLower(strings.TrimSpace(text))
-
-		// Only respond to messages that start with "Flux"
-		if !strings.HasPrefix(lowerText, "flux") {
-			return
-		}
-
-		// Remove "flux" prefix and get the actual message
-		actualMessage := strings.TrimSpace(strings.TrimPrefix(lowerText, "flux"))
-		
-		// Check if the remaining message is a greeting
-		if s.isGreeting(actualMessage) {
-			// Get sender's phone number
-			sender, err := notification.Sender()
-			if err != nil || sender == "" {
-				sender = "there"
-			}
-
-			// Send greeting response
-			response := fmt.Sprintf("hey, %s", sender)
-			notification.AnswerWithText(response)
-			log.Printf("Sent greeting to %s: %s", sender, response)
-		} else {
-			// Send a default response for non-greeting messages
-			notification.AnswerWithText("Hi! Say 'Flux hi' to get a personalized greeting!")
-		}
-	})
-}
-
-// isGreeting checks if the message is a greeting
-func (s GreetingScene) isGreeting(text string) bool {
-	greetings := []string{
-		"hi", "hello", "hey", "hiya", "howdy", "greetings",
-		"good morning", "good afternoon", "good evening",
-		"what's up", "whats up", "sup", "yo",
-	}
-
-	for _, greeting := range greetings {
-		if strings.Contains(text, greeting) {
-			return true
-		}
-	}
-	return false
-}
-
-// isGroupChat checks if the message is from a group chat
-func (s GreetingScene) isGroupChat(notification *chatbot.Notification) bool {
-	// Check the webhook body for group chat indicators
-	body := notification.Body
-	
-	// Check senderData for group chat ID
-	if senderData, ok := body["senderData"].(map[string]interface{}); ok {
-		if chatId, exists := senderData["chatId"]; exists {
-			if chatIdStr, ok := chatId.(string); ok {
-				// Group chat IDs end with @g.us
-				return strings.HasSuffix(chatIdStr, "@g.us")
-			}
-		}
-	}
-	
-	return false
-}

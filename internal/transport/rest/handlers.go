@@ -106,8 +106,8 @@ func WhatsAppWebhookHandler(w http.ResponseWriter, r *http.Request) {
 
 	log.Printf("WhatsApp webhook received: %+v", webhookData)
 
-	// Process the webhook (you can add your bot logic here)
-	// For now, just acknowledge receipt
+	// Note: Bot is now using Green API polling instead of webhooks
+	// This endpoint is kept for compatibility but doesn't process messages
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("OK"))
 }
