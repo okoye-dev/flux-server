@@ -7,8 +7,9 @@ import (
 
 // Config holds all configuration for our application
 type Config struct {
-	Server   ServerConfig
-	Supabase SupabaseConfig
+	Server     ServerConfig
+	Supabase   SupabaseConfig
+	WhatsApp   WhatsAppConfig
 }
 
 // ServerConfig holds server-related configuration
@@ -25,6 +26,14 @@ type SupabaseConfig struct {
 	JWTSecret       string
 }
 
+// WhatsAppConfig holds WhatsApp bot configuration
+type WhatsAppConfig struct {
+	APIURL     string
+	InstanceID string
+	Token      string
+	Enabled    bool
+}
+
 // Load loads configuration from environment variables
 func Load() *Config {
 	return &Config{
@@ -37,6 +46,12 @@ func Load() *Config {
 			AnonKey:        getEnv("SUPABASE_ANON_KEY", ""),
 			ServiceRoleKey: getEnv("SUPABASE_SERVICE_ROLE_KEY", ""),
 			JWTSecret:      getEnv("JWT_SECRET", ""),
+		},
+		WhatsApp: WhatsAppConfig{
+			APIURL:     getEnv("API_URL", ""),
+			InstanceID: getEnv("WHATSAPP_INSTANCE_ID", ""),
+			Token:      getEnv("WHATSAPP_TOKEN", ""),
+			Enabled:    getEnvAsBool("WHATSAPP_ENABLED", false),
 		},
 	}
 }
@@ -78,6 +93,16 @@ func getEnvAsInt(key string, fallback int) int {
 	if value := os.Getenv(key); value != "" {
 		if intValue, err := strconv.Atoi(value); err == nil {
 			return intValue
+		}
+	}
+	return fallback
+}
+
+// getEnvAsBool gets an environment variable as boolean with a fallback value
+func getEnvAsBool(key string, fallback bool) bool {
+	if value := os.Getenv(key); value != "" {
+		if boolValue, err := strconv.ParseBool(value); err == nil {
+			return boolValue
 		}
 	}
 	return fallback

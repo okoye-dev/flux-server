@@ -1,6 +1,9 @@
 package rest
 
 import (
+	"encoding/json"
+	"io"
+	"log"
 	"net/http"
 	"time"
 
@@ -78,12 +81,44 @@ func ProtectedDataHandler(w http.ResponseWriter, r *http.Request) {
 	WriteProtectedDataResponse(w, response)
 }
 
+// WhatsAppWebhookHandler handles incoming WhatsApp webhooks
+func WhatsAppWebhookHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	// Read the request body
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		log.Printf("Error reading webhook body: %v", err)
+		http.Error(w, "Bad request", http.StatusBadRequest)
+		return
+	}
+
+	// Parse the webhook data
+	var webhookData map[string]interface{}
+	if err := json.Unmarshal(body, &webhookData); err != nil {
+		log.Printf("Error parsing webhook JSON: %v", err)
+		http.Error(w, "Invalid JSON", http.StatusBadRequest)
+		return
+	}
+
+	log.Printf("WhatsApp webhook received: %+v", webhookData)
+
+	// Process the webhook (you can add your bot logic here)
+	// For now, just acknowledge receipt
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("OK"))
+}
+
 // NewRouter creates and returns a new HTTP router with all routes
 func NewRouter() *http.ServeMux {
 	mux := http.NewServeMux()
 	
 	// Public endpoints
 	mux.HandleFunc("/health", HealthHandler)
+	mux.HandleFunc("/webhook/whatsapp", WhatsAppWebhookHandler)
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		response := RootResponse{
 			Message: MsgWelcomeToFlux,
