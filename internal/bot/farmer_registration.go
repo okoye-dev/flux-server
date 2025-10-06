@@ -50,32 +50,37 @@ func (s FarmerRegistrationScene) Start(bot *chatbot.Bot) {
 
 		switch currentState {
 		case STATE_REGISTER_NAME:
-			s.handleName(notification, text)
+			s.HandleName(notification, text)
 		case STATE_REGISTER_CROP:
-			s.handleCrop(notification, text)
+			s.HandleCrop(notification, text)
 		case STATE_REGISTER_LOCATION:
-			s.handleLocation(notification, text)
+			s.HandleLocation(notification, text)
 		case STATE_REGISTER_LANGUAGE:
-			s.handleLanguage(notification, text)
+			s.HandleLanguage(notification, text)
 		}
 	})
 }
 
 // startRegistration initiates the registration process
 func (s *FarmerRegistrationScene) startRegistration(notification *chatbot.Notification) {
+	log.Printf("DEBUG: Starting farmer registration")
 	notification.AnswerWithText("🌱 Great! Let's register you as a farmer.\n\nWhat's your full name?")
 	notification.UpdateStateData(map[string]interface{}{
 		"registration_state": STATE_REGISTER_NAME,
 	})
+	log.Printf("DEBUG: Set registration state to: %s", STATE_REGISTER_NAME)
 }
 
 // handleName processes the name input
-func (s *FarmerRegistrationScene) handleName(notification *chatbot.Notification, name string) {
+func (s *FarmerRegistrationScene) HandleName(notification *chatbot.Notification, name string) {
+	log.Printf("DEBUG: HandleName called with: '%s'", name)
 	if strings.TrimSpace(name) == "" {
+		log.Printf("DEBUG: Empty name provided")
 		notification.AnswerWithText("Please enter your full name.")
 		return
 	}
 	
+	log.Printf("DEBUG: Setting name to: '%s' and state to: %s", name, STATE_REGISTER_CROP)
 	notification.UpdateStateData(map[string]interface{}{
 		"name": name,
 		"registration_state": STATE_REGISTER_CROP,
@@ -84,12 +89,15 @@ func (s *FarmerRegistrationScene) handleName(notification *chatbot.Notification,
 }
 
 // handleCrop processes the crop input
-func (s *FarmerRegistrationScene) handleCrop(notification *chatbot.Notification, crop string) {
+func (s *FarmerRegistrationScene) HandleCrop(notification *chatbot.Notification, crop string) {
+	log.Printf("DEBUG: HandleCrop called with: '%s'", crop)
 	if strings.TrimSpace(crop) == "" {
+		log.Printf("DEBUG: Empty crop provided")
 		notification.AnswerWithText("Please tell me what crop you grow.")
 		return
 	}
 	
+	log.Printf("DEBUG: Setting crop to: '%s' and state to: %s", crop, STATE_REGISTER_LOCATION)
 	notification.UpdateStateData(map[string]interface{}{
 		"crop": crop,
 		"registration_state": STATE_REGISTER_LOCATION,
@@ -98,12 +106,15 @@ func (s *FarmerRegistrationScene) handleCrop(notification *chatbot.Notification,
 }
 
 // handleLocation processes the location input
-func (s *FarmerRegistrationScene) handleLocation(notification *chatbot.Notification, location string) {
+func (s *FarmerRegistrationScene) HandleLocation(notification *chatbot.Notification, location string) {
+	log.Printf("DEBUG: HandleLocation called with: '%s'", location)
 	if strings.TrimSpace(location) == "" {
+		log.Printf("DEBUG: Empty location provided")
 		notification.AnswerWithText("Please tell me your farm location.")
 		return
 	}
 	
+	log.Printf("DEBUG: Setting location to: '%s' and state to: %s", location, STATE_REGISTER_LANGUAGE)
 	notification.UpdateStateData(map[string]interface{}{
 		"location": location,
 		"registration_state": STATE_REGISTER_LANGUAGE,
@@ -112,8 +123,10 @@ func (s *FarmerRegistrationScene) handleLocation(notification *chatbot.Notificat
 }
 
 // handleLanguage processes the language input and completes registration
-func (s *FarmerRegistrationScene) handleLanguage(notification *chatbot.Notification, language string) {
+func (s *FarmerRegistrationScene) HandleLanguage(notification *chatbot.Notification, language string) {
+	log.Printf("DEBUG: HandleLanguage called with: '%s'", language)
 	if strings.TrimSpace(language) == "" {
+		log.Printf("DEBUG: Empty language provided")
 		notification.AnswerWithText("Please tell me your preferred language.")
 		return
 	}
@@ -140,6 +153,7 @@ func (s *FarmerRegistrationScene) handleLanguage(notification *chatbot.Notificat
 	})
 	
 	// Send completion message
+	log.Printf("DEBUG: Registration completed for %s, resetting state to NONE", name)
 	completionMessage := fmt.Sprintf(`✅ Registration Complete!
 
 👤 Name: %s

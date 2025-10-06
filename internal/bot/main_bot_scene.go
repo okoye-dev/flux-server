@@ -46,11 +46,17 @@ func (s MainBotScene) Start(bot *chatbot.Bot) {
 		stateData := notification.GetStateData()
 		registrationState := stateData["registration_state"]
 		
+		log.Printf("DEBUG: Message '%s' - Current registration state: %v", text, registrationState)
+		
 		// If user is in the middle of registration, let the registration scene handle it
 		if registrationState != nil && registrationState != STATE_NONE {
-			// Let the registration scene handle ongoing registration
+			log.Printf("DEBUG: User is in registration state %v, handling ongoing registration", registrationState)
+			// Handle ongoing registration directly
+			s.handleOngoingRegistration(notification, text)
 			return
 		}
+		
+		log.Printf("DEBUG: No ongoing registration, processing as normal command")
 
 		// Convert to lowercase for case-insensitive matching
 		actualMessage := strings.ToLower(strings.TrimSpace(text))
@@ -151,6 +157,34 @@ You can:
 // handleInvalidCommand handles invalid commands
 func (s *MainBotScene) handleInvalidCommand(notification *chatbot.Notification) {
 	notification.AnswerWithText(MSG_INVALID_COMMAND)
+}
+
+// handleOngoingRegistration handles messages during registration
+func (s *MainBotScene) handleOngoingRegistration(notification *chatbot.Notification, text string) {
+	stateData := notification.GetStateData()
+	currentState := stateData["registration_state"]
+
+	log.Printf("DEBUG: Handling ongoing registration - State: %v, Message: '%s'", currentState, text)
+
+	switch currentState {
+	case STATE_REGISTER_NAME:
+		log.Printf("DEBUG: Processing name input: '%s'", text)
+		s.registrationScene.HandleName(notification, text)
+	case STATE_REGISTER_CROP:
+		log.Printf("DEBUG: Processing crop input: '%s'", text)
+		s.registrationScene.HandleCrop(notification, text)
+	case STATE_REGISTER_LOCATION:
+		log.Printf("DEBUG: Processing location input: '%s'", text)
+		s.registrationScene.HandleLocation(notification, text)
+	case STATE_REGISTER_LANGUAGE:
+		log.Printf("DEBUG: Processing language input: '%s'", text)
+		s.registrationScene.HandleLanguage(notification, text)
+	default:
+		log.Printf("DEBUG: Unknown registration state %v, resetting", currentState)
+		// Unknown state, reset to main menu
+		notification.UpdateStateData(map[string]interface{}{"registration_state": STATE_NONE})
+		notification.AnswerWithText("Registration reset. Type 'register' to start again.")
+	}
 }
 
 // isGroupChat checks if the message is from a group chat
