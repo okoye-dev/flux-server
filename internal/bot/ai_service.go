@@ -3,6 +3,7 @@ package bot
 import (
 	"fmt"
 	"log"
+	"strings"
 	"time"
 )
 
@@ -16,11 +17,11 @@ func NewAIService() *AIService {
 
 // FarmerProfile represents a farmer's profile data
 type FarmerProfile struct {
-	Name     string `json:"name"`
-	Crop     string `json:"crop"`
-	Location string `json:"location"`
-	Language string `json:"language"`
-	Phone    string `json:"phone"`
+	Name     string   `json:"name"`
+	Crops    []string `json:"crops"`
+	Location string   `json:"location"`
+	Language string   `json:"language"`
+	Phone    string   `json:"phone"`
 }
 
 // WeatherData represents weather information
@@ -68,12 +69,15 @@ func (ai *AIService) CallGeminiAI(request AIAdviceRequest) (*AIAdviceResponse, e
 	// Simulate API call delay
 	time.Sleep(2 * time.Second)
 	
+	// Get crops list for advice
+	cropsList := strings.Join(request.FarmerProfile.Crops, ", ")
+	
 	// Dummy response - replace with actual Gemini API call
 	response := &AIAdviceResponse{
-		PlantingAdvice:   fmt.Sprintf("Based on current weather conditions, it's optimal to plant %s in the next 3-5 days. Soil moisture levels are ideal.", request.FarmerProfile.Crop),
+		PlantingAdvice:   fmt.Sprintf("Based on current weather conditions, it's optimal to plant %s in the next 3-5 days. Soil moisture levels are ideal.", cropsList),
 		IrrigationAdvice: "With current humidity at 65%, reduce irrigation frequency to every 3 days. Monitor soil moisture closely.",
-		HarvestAdvice:    fmt.Sprintf("Your %s crop should be ready for harvest in approximately 45-60 days based on current growth conditions.", request.FarmerProfile.Crop),
-		MarketAdvice:     fmt.Sprintf("Current market price for %s is %s%.2f per %s. %s", request.FarmerProfile.Crop, request.MarketData.Currency, request.MarketData.Price, request.MarketData.Unit, getMarketTrendAdvice(request.MarketData.Trend)),
+		HarvestAdvice:    fmt.Sprintf("Your %s crops should be ready for harvest in approximately 45-60 days based on current growth conditions.", cropsList),
+		MarketAdvice:     fmt.Sprintf("Current market prices for your crops (%s) are favorable. %s", cropsList, getMarketTrendAdvice(request.MarketData.Trend)),
 		GeneralAdvice:    "This would be some info from our AI based on what you asked. Monitor your crops regularly and maintain proper spacing for optimal yield.",
 		Confidence:       85,
 		GeneratedAt:      time.Now().Format(time.RFC3339),
@@ -127,8 +131,9 @@ func (ai *AIService) ProcessFeedback(farmerProfile FarmerProfile, feedback strin
 	time.Sleep(1 * time.Second)
 	
 	// Dummy feedback processing - replace with actual AI analysis
+	cropsList := strings.Join(farmerProfile.Crops, ", ")
 	response := fmt.Sprintf("Thank you for your feedback: '%s'. This information will help improve future recommendations for your %s farming in %s.", 
-		feedback, farmerProfile.Crop, farmerProfile.Location)
+		feedback, cropsList, farmerProfile.Location)
 	
 	log.Printf("✅ Feedback processed successfully")
 	return response, nil

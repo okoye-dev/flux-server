@@ -1,6 +1,7 @@
 package services
 
 import (
+	"fmt"
 	"os"
 	"time"
 
@@ -170,7 +171,102 @@ func (s *ProfileService) createFarmerRecord(authUserID uuid.UUID, username strin
 
 	var result []models.Farmer
 	_, err := s.client.From("farmers").Insert(farmer, false, "", "", "").ExecuteTo(&result)
+	if err != nil {
+		return err
+	}
+
+	// If we have crop information, add it to the farmer_crops table
+	if cropType != "" {
+		return s.addCropToFarmer(farmerID, cropType)
+	}
+
+	return nil
+}
+
+// addCropToFarmer adds a crop to a farmer's profile
+func (s *ProfileService) addCropToFarmer(farmerID int64, cropName string) error {
+	// First, find or create the crop
+	cropID, err := s.findOrCreateCrop(cropName)
+	if err != nil {
+		return err
+	}
+
+	// Create farmer-crop relationship
+	farmerCrop := models.FarmerCrop{
+		ID:        uuid.New(),
+		FarmerID:  farmerID,
+		CropID:    *cropID,
+		CreatedAt: time.Now(),
+	}
+
+	var result []models.FarmerCrop
+	_, err = s.client.From("farmer_crops").Insert(farmerCrop, false, "", "", "").ExecuteTo(&result)
 	return err
+}
+
+// findOrCreateCrop finds an existing crop or creates a new one
+func (s *ProfileService) findOrCreateCrop(cropName string) (*uuid.UUID, error) {
+	// First, try to find existing crop
+	var existingCrops []models.Crop
+	_, err := s.client.From("crops").Select("id", "", false).Eq("name", cropName).ExecuteTo(&existingCrops)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(existingCrops) > 0 {
+		return &existingCrops[0].ID, nil
+	}
+
+	// Create new crop if not found
+	newCrop := models.Crop{
+		ID:        uuid.New(),
+		Name:      cropName,
+		CreatedAt: time.Now(),
+	}
+
+	var result []models.Crop
+	_, err = s.client.From("crops").Insert(newCrop, false, "", "", "").ExecuteTo(&result)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(result) > 0 {
+		return &result[0].ID, nil
+	}
+
+	return nil, fmt.Errorf("failed to create crop: %s", cropName)
+}
+
+// AddCropsToFarmer adds multiple crops to a farmer
+func (s *ProfileService) AddCropsToFarmer(farmerID int64, cropNames []string) error {
+	for _, cropName := range cropNames {
+		if err := s.addCropToFarmer(farmerID, cropName); err != nil {
+			return fmt.Errorf("failed to add crop %s: %w", cropName, err)
+		}
+	}
+	return nil
+}
+
+// GetFarmerCrops retrieves all crops for a farmer
+func (s *ProfileService) GetFarmerCrops(farmerID int64) ([]models.Crop, error) {
+	var farmerCrops []models.FarmerCropWithDetails
+	_, err := s.client.From("farmer_crops").
+		Select("*, crops(*)", "", false).
+		Eq("farmer_id", fmt.Sprintf("%d", farmerID)).
+		ExecuteTo(&farmerCrops)
+	
+	if err != nil {
+		return nil, err
+	}
+
+	var crops []models.Crop
+	for _, fc := range farmerCrops {
+		if fc.Crop != nil {
+			crops = append(crops, *fc.Crop)
+		}
+	}
+
+	return crops, nil
 }
 
 // createExtensionOfficerRecord creates an extension officer record

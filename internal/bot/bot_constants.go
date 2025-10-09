@@ -83,6 +83,21 @@ Your farmer profile has been saved. You can now:
 • Check your profile with "status"`
 
 	MSG_AI_PROCESSING = `🤖 Processing your request with AI...`
+
+	MSG_MORE_CROPS_QUESTION = `🌾 Great! You grow %s.
+
+Do you grow any other crops? 
+• Type "yes" to add more crops
+• Type "no" to continue with location`
+
+	MSG_ADD_MORE_CROPS = `🌱 What other crop do you grow? 
+(e.g., maize, rice, wheat, vegetables, beans, etc.)
+
+Type "done" when you're finished adding crops.`
+
+	MSG_CROPS_COMPLETE = `✅ Perfect! You grow: %s
+
+Now, where is your farm located? (e.g., city, region, state)`
 )
 
 // Bot States
@@ -92,6 +107,7 @@ const (
 	STATE_REGISTERING      = "registering"
 	STATE_REGISTER_NAME    = "register_name"
 	STATE_REGISTER_CROP    = "register_crop"
+	STATE_REGISTER_MORE_CROPS = "register_more_crops"
 	STATE_REGISTER_LOCATION = "register_location"
 	STATE_REGISTER_LANGUAGE = "register_language"
 	STATE_WAITING_ADVICE   = "waiting_advice"

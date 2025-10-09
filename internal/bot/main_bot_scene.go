@@ -126,16 +126,32 @@ func (s *MainBotScene) handleStatus(notification *chatbot.Notification) {
 	
 	// Get farmer profile from state
 	stateData := notification.GetStateData()
-	farmerProfile, ok := stateData["farmer_profile"].(FarmerProfile)
+	farmerProfileData, ok := stateData["farmer_profile"].(map[string]interface{})
 	if !ok {
 		notification.AnswerWithText("❌ You're not registered yet. Use 'register' to get started!")
 		return
 	}
 	
+	// Handle both single crop and multiple crops
+	var cropsDisplay string
+	if crops, ok := farmerProfileData["crops"].([]string); ok {
+		cropsDisplay = strings.Join(crops, ", ")
+	} else if crop, ok := farmerProfileData["crop"].(string); ok {
+		cropsDisplay = crop
+	} else {
+		cropsDisplay = "Not specified"
+	}
+
+	// Get other profile data with fallbacks
+	name, _ := farmerProfileData["name"].(string)
+	location, _ := farmerProfileData["location"].(string)
+	language, _ := farmerProfileData["language"].(string)
+	phone, _ := farmerProfileData["phone"].(string)
+
 	statusMessage := fmt.Sprintf(`👤 **Your Farmer Profile**
 
 📝 **Name:** %s
-🌱 **Crop:** %s
+🌱 **Crops:** %s
 📍 **Location:** %s
 🗣️ **Language:** %s
 📱 **Phone:** %s
@@ -144,11 +160,11 @@ You can:
 • Get advice with "advice"
 • Send feedback with "feedback"
 • Update your profile anytime`,
-		farmerProfile.Name,
-		farmerProfile.Crop,
-		farmerProfile.Location,
-		farmerProfile.Language,
-		farmerProfile.Phone,
+		name,
+		cropsDisplay,
+		location,
+		language,
+		phone,
 	)
 	
 	notification.AnswerWithText(statusMessage)
@@ -173,6 +189,9 @@ func (s *MainBotScene) handleOngoingRegistration(notification *chatbot.Notificat
 	case STATE_REGISTER_CROP:
 		log.Printf("DEBUG: Processing crop input: '%s'", text)
 		s.registrationScene.HandleCrop(notification, text)
+	case STATE_REGISTER_MORE_CROPS:
+		log.Printf("DEBUG: Processing more crops input: '%s'", text)
+		s.registrationScene.HandleMoreCrops(notification, text)
 	case STATE_REGISTER_LOCATION:
 		log.Printf("DEBUG: Processing location input: '%s'", text)
 		s.registrationScene.HandleLocation(notification, text)

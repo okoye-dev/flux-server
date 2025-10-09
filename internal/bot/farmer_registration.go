@@ -53,6 +53,8 @@ func (s FarmerRegistrationScene) Start(bot *chatbot.Bot) {
 			s.HandleName(notification, text)
 		case STATE_REGISTER_CROP:
 			s.HandleCrop(notification, text)
+		case STATE_REGISTER_MORE_CROPS:
+			s.HandleMoreCrops(notification, text)
 		case STATE_REGISTER_LOCATION:
 			s.HandleLocation(notification, text)
 		case STATE_REGISTER_LANGUAGE:
@@ -97,12 +99,68 @@ func (s *FarmerRegistrationScene) HandleCrop(notification *chatbot.Notification,
 		return
 	}
 	
-	log.Printf("DEBUG: Setting crop to: '%s' and state to: %s", crop, STATE_REGISTER_LOCATION)
+	// Store the first crop
+	crops := []string{crop}
+	
+	log.Printf("DEBUG: Setting first crop to: '%s' and state to: %s", crop, STATE_REGISTER_MORE_CROPS)
 	notification.UpdateStateData(map[string]interface{}{
-		"crop": crop,
-		"registration_state": STATE_REGISTER_LOCATION,
+		"crops": crops,
+		"registration_state": STATE_REGISTER_MORE_CROPS,
 	})
-	notification.AnswerWithText(fmt.Sprintf("Got it! You grow %s. 🌾\n\nWhere is your farm located? (e.g., city, region, state)", crop))
+	notification.AnswerWithText(fmt.Sprintf(MSG_MORE_CROPS_QUESTION, crop))
+}
+
+// handleMoreCrops processes additional crop inputs
+func (s *FarmerRegistrationScene) HandleMoreCrops(notification *chatbot.Notification, response string) {
+	log.Printf("DEBUG: HandleMoreCrops called with: '%s'", response)
+	
+	stateData := notification.GetStateData()
+	crops, ok := stateData["crops"].([]string)
+	if !ok {
+		log.Printf("DEBUG: No crops found in state, resetting")
+		notification.AnswerWithText("Something went wrong. Please start registration again with 'register'.")
+		notification.UpdateStateData(map[string]interface{}{"registration_state": STATE_NONE})
+		return
+	}
+	
+	response = strings.ToLower(strings.TrimSpace(response))
+	
+	// Check if user wants to add more crops
+	if response == "yes" {
+		notification.AnswerWithText(MSG_ADD_MORE_CROPS)
+		return
+	}
+	
+	// Check if user is done adding crops
+	if response == "no" || response == "done" {
+		// Move to location registration
+		cropsList := strings.Join(crops, ", ")
+		log.Printf("DEBUG: Final crops list: %s, moving to location", cropsList)
+		notification.UpdateStateData(map[string]interface{}{
+			"registration_state": STATE_REGISTER_LOCATION,
+		})
+		notification.AnswerWithText(fmt.Sprintf(MSG_CROPS_COMPLETE, cropsList))
+		return
+	}
+	
+	// User provided another crop name
+	if strings.TrimSpace(response) == "" {
+		notification.AnswerWithText("Please tell me the crop name or type 'done' to finish.")
+		return
+	}
+	
+	// Add the new crop to the list
+	crops = append(crops, response)
+	log.Printf("DEBUG: Added crop '%s', total crops: %v", response, crops)
+	
+	// Update state with new crop list
+	notification.UpdateStateData(map[string]interface{}{
+		"crops": crops,
+	})
+	
+	// Ask if they want to add more
+	cropsList := strings.Join(crops, ", ")
+	notification.AnswerWithText(fmt.Sprintf("Great! You grow: %s\n\nDo you grow any other crops? Type 'yes' to add more or 'done' to continue.", cropsList))
 }
 
 // handleLocation processes the location input
@@ -134,13 +192,21 @@ func (s *FarmerRegistrationScene) HandleLanguage(notification *chatbot.Notificat
 	// Get all registration data
 	stateData := notification.GetStateData()
 	name := stateData["name"].(string)
-	crop := stateData["crop"].(string)
+	crops, ok := stateData["crops"].([]string)
+	if !ok {
+		// Fallback to single crop if crops array not found
+		if crop, exists := stateData["crop"].(string); exists {
+			crops = []string{crop}
+		} else {
+			crops = []string{"Unknown"}
+		}
+	}
 	location := stateData["location"].(string)
 	
 	// Save farmer profile
 	farmerProfile := map[string]interface{}{
 		"name": name,
-		"crop": crop,
+		"crops": crops,
 		"location": location,
 		"language": language,
 	}
@@ -154,10 +220,11 @@ func (s *FarmerRegistrationScene) HandleLanguage(notification *chatbot.Notificat
 	
 	// Send completion message
 	log.Printf("DEBUG: Registration completed for %s, resetting state to NONE", name)
+	cropsList := strings.Join(crops, ", ")
 	completionMessage := fmt.Sprintf(`✅ Registration Complete!
 
 👤 Name: %s
-🌾 Crop: %s
+🌾 Crops: %s
 📍 Location: %s
 🗣️ Language: %s
 
@@ -166,7 +233,7 @@ You're all set! Now you can:
 • Send feedback with "feedback"
 • Check your profile with "status"
 
-Welcome to Farm Assistant! 🌱`, name, crop, location, language)
+Welcome to Farm Assistant! 🌱`, name, cropsList, location, language)
 	
 	notification.AnswerWithText(completionMessage)
 }

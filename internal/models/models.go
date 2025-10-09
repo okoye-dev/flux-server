@@ -62,6 +62,14 @@ type Crop struct {
 	CreatedAt      time.Time `json:"created_at" db:"created_at"`
 }
 
+// FarmerCrop represents the junction table between farmers and crops
+type FarmerCrop struct {
+	ID        uuid.UUID `json:"id" db:"id"`
+	FarmerID  int64     `json:"farmer_id" db:"farmer_id"`   // FK to farmers.id
+	CropID    uuid.UUID `json:"crop_id" db:"crop_id"`       // FK to crops.id
+	CreatedAt time.Time `json:"created_at" db:"created_at"`
+}
+
 // FarmHarvest represents a farm harvest record
 type FarmHarvest struct {
 	ID            uuid.UUID  `json:"id" db:"id"`
@@ -126,4 +134,28 @@ type CreateFarmHarvestRequest struct {
 	CropID        *uuid.UUID `json:"crop_id,omitempty"`
 	Quantity      *float64   `json:"quantity,omitempty"`
 	HarvestedAt   *time.Time `json:"harvested_at,omitempty"`
+}
+
+// FarmerWithCrops represents a farmer with their associated crops
+type FarmerWithCrops struct {
+	Farmer
+	Crops []Crop `json:"crops,omitempty"`
+}
+
+// FarmerCropWithDetails represents a farmer-crop relationship with crop details
+type FarmerCropWithDetails struct {
+	FarmerCrop
+	Crop *Crop `json:"crop,omitempty"`
+}
+
+// CreateFarmerCropRequest represents the request to add a crop to a farmer
+type CreateFarmerCropRequest struct {
+	FarmerID int64     `json:"farmer_id" validate:"required"`
+	CropID   uuid.UUID `json:"crop_id" validate:"required"`
+}
+
+// AddCropsToFarmerRequest represents the request to add multiple crops to a farmer
+type AddCropsToFarmerRequest struct {
+	FarmerID int64       `json:"farmer_id" validate:"required"`
+	CropIDs  []uuid.UUID `json:"crop_ids" validate:"required,min=1"`
 }
