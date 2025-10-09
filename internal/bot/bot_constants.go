@@ -6,6 +6,8 @@ const (
 	CMD_REGISTER  = "register"
 	CMD_ADVICE    = "advice"
 	CMD_FEEDBACK  = "feedback"
+	CMD_MARKET    = "market"
+	CMD_GO        = "go"
 	CMD_HELP      = "help"
 	CMD_STATUS    = "status"
 	CMD_HI        = "hi"
@@ -27,9 +29,11 @@ Type "help" to see all commands.`
 	MSG_HELP = `📋 Available Commands:
 
 • "register" - Register as a farmer
-• "advice" - Get farming advice
+• "advice" - Get AI-tailored farming advice
+• "market" - Get market prices and insights
 • "feedback" - Send feedback
 • "status" - Check your profile
+• "go" - Access our web app
 • "help" - Show this help
 • "hi" or "hey" - Greeting
 
@@ -98,6 +102,31 @@ Type "done" when you're finished adding crops.`
 	MSG_CROPS_COMPLETE = `✅ Perfect! You grow: %s
 
 Now, where is your farm located? (e.g., city, region, state)`
+
+	MSG_MARKET_INSIGHTS = `💰 **Market Insights**
+
+🌾 **Rice** in Kano markets: ₦900 per bag
+🌽 **Maize** in Lagos markets: ₦650 per bag
+🍅 **Tomatoes** in Abuja markets: ₦1,200 per basket
+🥜 **Groundnuts** in Kaduna markets: ₦800 per bag
+
+*Prices updated 2 hours ago*
+
+For detailed market analysis, type "go" to access our web app.`
+
+	MSG_WEB_APP_ACCESS = `🌐 **Access Our Web App**
+
+Visit: https://flux-farm-app.vercel.app
+
+Our web app provides:
+• 📊 Detailed market analysis
+• 🌤️ Advanced weather forecasts
+• 📚 Learning & Advisory Center
+• 🤖 AI-curated learning modules
+• 👨‍🌾 Expert consultations
+• 💡 Daily farming tips
+
+*Bookmark this link for easy access!*`
 )
 
 // Bot States

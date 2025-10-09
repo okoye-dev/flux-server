@@ -53,11 +53,28 @@ func (s *AdviceDeliveryScene) handleAdviceRequest(notification *chatbot.Notifica
 	
 	// Get farmer profile from state
 	stateData := notification.GetStateData()
-	farmerProfile, ok := stateData["farmer_profile"].(FarmerProfile)
+	farmerProfileData, ok := stateData["farmer_profile"].(map[string]interface{})
 	if !ok {
 		// If no profile found, ask to register first
 		notification.AnswerWithText("❌ Please register first using 'register' to get personalized advice.")
 		return
+	}
+	
+	// Convert to FarmerProfile struct
+	farmerProfile := FarmerProfile{
+		Name:     getStringFromMap(farmerProfileData, "name"),
+		Location: getStringFromMap(farmerProfileData, "location"),
+		Language: getStringFromMap(farmerProfileData, "language"),
+		Phone:    getStringFromMap(farmerProfileData, "phone"),
+	}
+	
+	// Handle both single crop and multiple crops
+	if crops, ok := farmerProfileData["crops"].([]string); ok {
+		farmerProfile.Crops = crops
+	} else if crop, ok := farmerProfileData["crop"].(string); ok {
+		farmerProfile.Crops = []string{crop}
+	} else {
+		farmerProfile.Crops = []string{"Unknown"}
 	}
 	
 	// Set state to waiting for advice
@@ -90,12 +107,19 @@ func (s *AdviceDeliveryScene) generateAndSendAdvice(notification *chatbot.Notifi
 		}
 	}
 	
-	// Fetch market data
-	marketData, err := s.aiService.GetMarketData(profile.Crop, profile.Location)
+	// Fetch market data (use first crop for market data)
+	var primaryCrop string
+	if len(profile.Crops) > 0 {
+		primaryCrop = profile.Crops[0]
+	} else {
+		primaryCrop = "maize" // fallback
+	}
+	
+	marketData, err := s.aiService.GetMarketData(primaryCrop, profile.Location)
 	if err != nil {
 		log.Printf("Error fetching market data: %v", err)
 		marketData = &MarketData{
-			CropType: profile.Crop,
+			CropType: primaryCrop,
 			Price:    2.50,
 			Currency: "$",
 			Unit:     "kg",
@@ -201,4 +225,12 @@ func (s *AdviceDeliveryScene) isGroupChat(notification *chatbot.Notification) bo
 	}
 	
 	return false
+}
+
+// getStringFromMap safely extracts a string value from a map
+func getStringFromMap(data map[string]interface{}, key string) string {
+	if value, ok := data[key].(string); ok {
+		return value
+	}
+	return ""
 }

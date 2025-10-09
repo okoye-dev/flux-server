@@ -79,6 +79,10 @@ func (s *MainBotScene) routeCommand(notification *chatbot.Notification, message 
 		s.registrationScene.startRegistration(notification)
 	case strings.Contains(message, CMD_ADVICE):
 		s.adviceScene.handleAdviceRequest(notification)
+	case strings.Contains(message, CMD_MARKET):
+		s.handleMarket(notification)
+	case strings.Contains(message, CMD_GO):
+		s.handleGo(notification)
 	case strings.Contains(message, CMD_FEEDBACK):
 		s.feedbackScene.handleFeedbackRequest(notification, message)
 	case strings.Contains(message, CMD_HELP):
@@ -168,6 +172,16 @@ You can:
 	)
 	
 	notification.AnswerWithText(statusMessage)
+}
+
+// handleMarket handles the market command
+func (s *MainBotScene) handleMarket(notification *chatbot.Notification) {
+	notification.AnswerWithText(MSG_MARKET_INSIGHTS)
+}
+
+// handleGo handles the go command for web app access
+func (s *MainBotScene) handleGo(notification *chatbot.Notification) {
+	notification.AnswerWithText(MSG_WEB_APP_ACCESS)
 }
 
 // handleInvalidCommand handles invalid commands
