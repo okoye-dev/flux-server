@@ -88,6 +88,21 @@ Your farmer profile has been saved. You can now:
 
 	MSG_AI_PROCESSING = `🤖 Processing your request with AI...`
 
+	MSG_AI_LOADING_1 = `🤖 Analyzing your farm data...
+• Checking weather conditions
+• Reviewing market prices
+• Preparing personalized advice`
+
+	MSG_AI_LOADING_2 = `🌱 Generating farming recommendations...
+• Processing crop information
+• Calculating optimal timing
+• Creating actionable insights`
+
+	MSG_AI_LOADING_3 = `📊 Finalizing your advice...
+• Cross-referencing data
+• Ensuring accuracy
+• Almost ready!`
+
 	MSG_MORE_CROPS_QUESTION = `🌾 Great! You grow %s.
 
 Do you grow any other crops? 

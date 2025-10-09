@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"strings"
+	"time"
 
 	chatbot "github.com/green-api/whatsapp-chatbot-golang"
 )
@@ -86,8 +87,28 @@ func (s *AdviceDeliveryScene) handleAdviceRequest(notification *chatbot.Notifica
 	// Send initial processing message
 	notification.AnswerWithText(MSG_ADVICE_REQUEST)
 	
-	// Generate AI advice
-	s.generateAndSendAdvice(notification, farmerProfile)
+	// Generate AI advice with loading messages
+	s.generateAndSendAdviceWithLoading(notification, farmerProfile)
+}
+
+// generateAndSendAdviceWithLoading generates AI advice with loading messages
+func (s *AdviceDeliveryScene) generateAndSendAdviceWithLoading(notification *chatbot.Notification, profile FarmerProfile) {
+	log.Printf("🤖 Generating AI advice for farmer: %s", profile.Name)
+	
+	// Send loading message 1
+	notification.AnswerWithText(MSG_AI_LOADING_1)
+	time.Sleep(3 * time.Second)
+	
+	// Send loading message 2
+	notification.AnswerWithText(MSG_AI_LOADING_2)
+	time.Sleep(3 * time.Second)
+	
+	// Send loading message 3
+	notification.AnswerWithText(MSG_AI_LOADING_3)
+	time.Sleep(2 * time.Second)
+	
+	// Now generate the actual advice
+	s.generateAndSendAdvice(notification, profile)
 }
 
 // generateAndSendAdvice generates AI advice and sends it to the farmer

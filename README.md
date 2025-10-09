@@ -9,6 +9,10 @@ A simple Go HTTP server with Supabase authentication middleware.
 - ✅ Protected and public routes
 - ✅ Environment configuration
 - ✅ User context management
+- ✅ WhatsApp Bot with AI integration
+- ✅ Multiple crop registration for farmers
+- ✅ Real-time Gemini AI advice generation
+- ✅ Market insights and web app integration
 
 ## Setup
 
@@ -31,6 +35,9 @@ SUPABASE_SERVICE_ROLE_KEY=your-supabase-service-role-key
 # Server Configuration
 PORT=8080
 ENVIRONMENT=development
+
+# AI Configuration
+API_KEY=your_gemini_api_key
 ```
 
 ### 2. Get Supabase Credentials
@@ -232,6 +239,21 @@ CORS_ORIGINS=https://yourdomain.com,https://app.yourdomain.com
 - [ ] Enable Supabase RLS (Row Level Security)
 - [ ] Set up monitoring and logging
 - [ ] Use a reverse proxy (nginx/Cloudflare)
+
+## Testing
+
+The project includes comprehensive tests in the `tests/` directory:
+
+- **AI Response Parsing**: Test the Gemini API response parsing
+- **Multiple Crop Registration**: Test the farmer registration flow  
+- **Demo Flow**: Complete end-to-end user experience documentation
+
+Run tests:
+```bash
+go run tests/test_response_format.go
+```
+
+See `tests/README.md` for detailed testing information.
 
 ## License
 

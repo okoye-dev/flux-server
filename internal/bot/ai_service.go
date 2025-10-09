@@ -158,7 +158,7 @@ Keep responses practical and specific to the farmer's location and crops. Use si
 	}
 
 	// Make API call to Gemini
-	url := fmt.Sprintf("https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=%s", apiKey)
+	url := fmt.Sprintf("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=%s", apiKey)
 	resp, err := http.Post(url, "application/json", bytes.NewBuffer(jsonData))
 	if err != nil {
 		return nil, fmt.Errorf("failed to call Gemini API: %w", err)
@@ -187,41 +187,59 @@ Keep responses practical and specific to the farmer's location and crops. Use si
 
 // parseAIResponse parses the AI response into structured advice
 func (ai *AIService) parseAIResponse(aiResponse, cropsList string) *AIAdviceResponse {
-	// Split response into lines and extract advice
-	lines := strings.Split(aiResponse, "\n")
+	// Clean up the response
+	aiResponse = strings.TrimSpace(aiResponse)
 	
-	response := &AIAdviceResponse{
+	// If the response is well-formatted, use it directly
+	if strings.Contains(aiResponse, "Planting advice:") || strings.Contains(aiResponse, "1.") {
+		return &AIAdviceResponse{
+			PlantingAdvice:   ai.extractAdviceSection(aiResponse, "planting", "1."),
+			IrrigationAdvice: ai.extractAdviceSection(aiResponse, "irrigation", "2."),
+			HarvestAdvice:    ai.extractAdviceSection(aiResponse, "harvest", "3."),
+			MarketAdvice:     ai.extractAdviceSection(aiResponse, "market", "4."),
+			GeneralAdvice:    ai.extractAdviceSection(aiResponse, "general", "5."),
+			Confidence:       90,
+			GeneratedAt:      time.Now().Format(time.RFC3339),
+		}
+	}
+	
+	// Fallback: return the full response as general advice
+	return &AIAdviceResponse{
 		PlantingAdvice:   "Based on current conditions, follow optimal planting schedules for your crops.",
 		IrrigationAdvice: "Monitor soil moisture and adjust irrigation based on weather conditions.",
 		HarvestAdvice:    fmt.Sprintf("Your %s crops should be ready for harvest based on growth conditions.", cropsList),
 		MarketAdvice:     "Monitor market trends and prices for optimal selling timing.",
-		GeneralAdvice:    "Continue monitoring your crops regularly and maintain proper farming practices.",
+		GeneralAdvice:    aiResponse,
 		Confidence:       85,
 		GeneratedAt:      time.Now().Format(time.RFC3339),
 	}
+}
 
-	// Try to extract specific advice from AI response
-	for i, line := range lines {
+// extractAdviceSection extracts a specific section from the AI response
+func (ai *AIService) extractAdviceSection(response, keyword, number string) string {
+	lines := strings.Split(response, "\n")
+	
+	for _, line := range lines {
 		line = strings.TrimSpace(line)
-		if strings.Contains(strings.ToLower(line), "plant") && i < len(lines)-1 {
-			response.PlantingAdvice = strings.TrimSpace(lines[i+1])
-		} else if strings.Contains(strings.ToLower(line), "irrigat") && i < len(lines)-1 {
-			response.IrrigationAdvice = strings.TrimSpace(lines[i+1])
-		} else if strings.Contains(strings.ToLower(line), "harvest") && i < len(lines)-1 {
-			response.HarvestAdvice = strings.TrimSpace(lines[i+1])
-		} else if strings.Contains(strings.ToLower(line), "market") && i < len(lines)-1 {
-			response.MarketAdvice = strings.TrimSpace(lines[i+1])
-		} else if strings.Contains(strings.ToLower(line), "general") && i < len(lines)-1 {
-			response.GeneralAdvice = strings.TrimSpace(lines[i+1])
+		lowerLine := strings.ToLower(line)
+		
+		// Look for lines that contain both the number and the keyword
+		if strings.Contains(lowerLine, number) && strings.Contains(lowerLine, keyword) {
+			// Extract the advice part after the colon
+			parts := strings.Split(line, ":")
+			if len(parts) > 1 {
+				advice := strings.TrimSpace(parts[1])
+				// Remove any markdown formatting
+				advice = strings.TrimPrefix(advice, "**")
+				advice = strings.TrimSuffix(advice, "**")
+				advice = strings.TrimSpace(advice)
+				return advice
+			}
 		}
 	}
-
-	// If we got a good response, use the first part as general advice
-	if len(aiResponse) > 50 {
-		response.GeneralAdvice = aiResponse
-	}
-
-	return response
+	
+	// Fallback
+	return fmt.Sprintf("Follow best practices for %s based on current conditions.", keyword)
 }
 
 // GetWeatherData fetches weather information for a location
@@ -290,3 +308,4 @@ func getMarketTrendAdvice(trend string) string {
 		return "Monitor market trends closely before making selling decisions."
 	}
 }
+
