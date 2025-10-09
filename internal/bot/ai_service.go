@@ -175,6 +175,8 @@ Keep responses practical and specific to the farmer's location and crops. Use si
 	var aiResponse string
 	if len(geminiResp.Candidates) > 0 && len(geminiResp.Candidates[0].Content.Parts) > 0 {
 		aiResponse = geminiResp.Candidates[0].Content.Parts[0].Text
+		// Clean up double asterisks from Gemini response
+		aiResponse = strings.ReplaceAll(aiResponse, "**", "*")
 	} else {
 		aiResponse = "Unable to generate advice at this time. Please try again later."
 	}
@@ -229,9 +231,9 @@ func (ai *AIService) extractAdviceSection(response, keyword, number string) stri
 			parts := strings.Split(line, ":")
 			if len(parts) > 1 {
 				advice := strings.TrimSpace(parts[1])
-				// Remove any markdown formatting
-				advice = strings.TrimPrefix(advice, "**")
-				advice = strings.TrimSuffix(advice, "**")
+				// Remove any markdown formatting (single asterisks now)
+				advice = strings.TrimPrefix(advice, "*")
+				advice = strings.TrimSuffix(advice, "*")
 				advice = strings.TrimSpace(advice)
 				return advice
 			}

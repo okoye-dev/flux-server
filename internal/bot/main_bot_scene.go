@@ -152,13 +152,13 @@ func (s *MainBotScene) handleStatus(notification *chatbot.Notification) {
 	language, _ := farmerProfileData["language"].(string)
 	phone, _ := farmerProfileData["phone"].(string)
 
-	statusMessage := fmt.Sprintf(`👤 **Your Farmer Profile**
+	statusMessage := fmt.Sprintf(`👤 *Your Farmer Profile*
 
-📝 **Name:** %s
-🌱 **Crops:** %s
-📍 **Location:** %s
-🗣️ **Language:** %s
-📱 **Phone:** %s
+📝 *Name:* %s
+🌱 *Crops:* %s
+📍 *Location:* %s
+🗣️ *Language:* %s
+📱 *Phone:* %s
 
 You can:
 • Get advice with "advice"

@@ -118,18 +118,18 @@ Type "done" when you're finished adding crops.`
 
 Now, where is your farm located? (e.g., city, region, state)`
 
-	MSG_MARKET_INSIGHTS = `💰 **Market Insights**
+	MSG_MARKET_INSIGHTS = `💰 *Market Insights*
 
-🌾 **Rice** in Kano markets: ₦900 per bag
-🌽 **Maize** in Lagos markets: ₦650 per bag
-🍅 **Tomatoes** in Abuja markets: ₦1,200 per basket
-🥜 **Groundnuts** in Kaduna markets: ₦800 per bag
+🌾 *Rice* in Kano markets: ₦900 per bag
+🌽 *Maize* in Lagos markets: ₦650 per bag
+🍅 *Tomatoes* in Abuja markets: ₦1,200 per basket
+🥜 *Groundnuts* in Kaduna markets: ₦800 per bag
 
 *Prices updated 2 hours ago*
 
 For detailed market analysis, type "go" to access our web app.`
 
-	MSG_WEB_APP_ACCESS = `🌐 **Access Our Web App**
+	MSG_WEB_APP_ACCESS = `🌐 *Access Our Web App*
 
 Visit: https://flux-farm-app.vercel.app
 

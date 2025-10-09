@@ -181,29 +181,29 @@ func (s *AdviceDeliveryScene) generateAndSendAdvice(notification *chatbot.Notifi
 
 // formatAdviceMessage formats the AI response into a readable message
 func (s *AdviceDeliveryScene) formatAdviceMessage(aiResponse *AIAdviceResponse, weather *WeatherData, market *MarketData) string {
-	message := fmt.Sprintf(`🌱 **Your Personalized Farming Advice**
+	message := fmt.Sprintf(`🌱 *Your Personalized Farming Advice*
 
-🌤️ **Weather Conditions:**
+🌤️ *Weather Conditions:*
 • Temperature: %.1f°C
 • Humidity: %.1f%%
 • Condition: %s
 • Rainfall: %.1fmm
 
-💰 **Market Information:**
+💰 *Market Information:*
 • %s Price: %s%.2f per %s
 • Trend: %s
 
-🤖 **AI Recommendations:**
+🤖 *AI Recommendations:*
 
-🌱 **Planting:** %s
+🌱 *Planting:* %s
 
-💧 **Irrigation:** %s
+💧 *Irrigation:* %s
 
-🌾 **Harvest:** %s
+🌾 *Harvest:* %s
 
-📈 **Market Strategy:** %s
+📈 *Market Strategy:* %s
 
-💡 **General Advice:** %s
+💡 *General Advice:* %s
 
 *Confidence: %d%% | Generated: %s*`,
 		weather.Temperature,
