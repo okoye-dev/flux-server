@@ -95,17 +95,9 @@ func (s *AdviceDeliveryScene) handleAdviceRequest(notification *chatbot.Notifica
 func (s *AdviceDeliveryScene) generateAndSendAdviceWithLoading(notification *chatbot.Notification, profile FarmerProfile) {
 	log.Printf("🤖 Generating AI advice for farmer: %s", profile.Name)
 	
-	// Send loading message 1
+	// Send only one loading message
 	notification.AnswerWithText(MSG_AI_LOADING_1)
 	time.Sleep(3 * time.Second)
-	
-	// Send loading message 2
-	notification.AnswerWithText(MSG_AI_LOADING_2)
-	time.Sleep(3 * time.Second)
-	
-	// Send loading message 3
-	notification.AnswerWithText(MSG_AI_LOADING_3)
-	time.Sleep(2 * time.Second)
 	
 	// Now generate the actual advice
 	s.generateAndSendAdvice(notification, profile)
@@ -169,6 +161,10 @@ func (s *AdviceDeliveryScene) generateAndSendAdvice(notification *chatbot.Notifi
 	// Format and send the advice
 	adviceMessage := s.formatAdviceMessage(aiResponse, weatherData, marketData)
 	notification.AnswerWithText(adviceMessage)
+	
+	// Send commands message after advice
+	time.Sleep(1 * time.Second)
+	notification.AnswerWithText(MSG_AFTER_ADVICE)
 	
 	// Update state back to idle
 	notification.SetStateData(map[string]interface{}{

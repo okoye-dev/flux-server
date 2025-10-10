@@ -88,20 +88,17 @@ Your farmer profile has been saved. You can now:
 
 	MSG_AI_PROCESSING = `🤖 Processing your request with AI...`
 
-	MSG_AI_LOADING_1 = `🤖 Analyzing your farm data...
-• Checking weather conditions
-• Reviewing market prices
-• Preparing personalized advice`
+	MSG_AI_LOADING_1 = `🤖 Getting your personalized advice, one sec...`
 
-	MSG_AI_LOADING_2 = `🌱 Generating farming recommendations...
-• Processing crop information
-• Calculating optimal timing
-• Creating actionable insights`
 
-	MSG_AI_LOADING_3 = `📊 Finalizing your advice...
-• Cross-referencing data
-• Ensuring accuracy
-• Almost ready!`
+	MSG_AFTER_ADVICE = `💡 *Need more help?*
+
+Available commands:
+• "market" - Get current market prices
+• "status" - Check your profile
+• "feedback" - Send updates
+• "go" - Access our web app
+• "help" - See all commands`
 
 	MSG_MORE_CROPS_QUESTION = `🌾 Great! You grow %s.
 
@@ -131,7 +128,7 @@ For detailed market analysis, type "go" to access our web app.`
 
 	MSG_WEB_APP_ACCESS = `🌐 *Access Our Web App*
 
-Visit: https://flux-farm-app.vercel.app
+Visit: https://agrosense-henna.vercel.app
 
 Our web app provides:
 • 📊 Detailed market analysis
