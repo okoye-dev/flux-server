@@ -3,7 +3,9 @@ package bot
 import (
 	"fmt"
 	"log"
+	"math/rand"
 	"strings"
+	"time"
 
 	chatbot "github.com/green-api/whatsapp-chatbot-golang"
 )
@@ -181,7 +183,29 @@ func (s *MainBotScene) handleMarket(notification *chatbot.Notification) {
 
 // handleGo handles the go command for web app access
 func (s *MainBotScene) handleGo(notification *chatbot.Notification) {
-	notification.AnswerWithText(MSG_WEB_APP_ACCESS)
+	// Check if user is "Ekene Nelson" - assign specific ID
+	stateData := notification.GetStateData()
+	farmerProfileData, ok := stateData["farmer_profile"].(map[string]interface{})
+	
+	var demoID string
+	if ok {
+		if name, exists := farmerProfileData["name"].(string); exists && strings.ToLower(name) == "ekene nelson" {
+			// Ekene Nelson gets the first access ID
+			demoID = DEMO_USER_IDS[0] // "a7k9m2"
+		} else {
+			// Everyone else gets a random ID
+			rand.Seed(time.Now().UnixNano())
+			demoID = DEMO_USER_IDS[rand.Intn(len(DEMO_USER_IDS))]
+		}
+	} else {
+		// No profile found, use random ID
+		rand.Seed(time.Now().UnixNano())
+		demoID = DEMO_USER_IDS[rand.Intn(len(DEMO_USER_IDS))]
+	}
+	
+	// Format the message with the demo ID
+	webAppMessage := fmt.Sprintf(MSG_WEB_APP_ACCESS, demoID)
+	notification.AnswerWithText(webAppMessage)
 }
 
 // handleInvalidCommand handles invalid commands

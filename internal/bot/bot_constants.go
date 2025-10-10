@@ -128,7 +128,7 @@ For detailed market analysis, type "go" to access our web app.`
 
 	MSG_WEB_APP_ACCESS = `🌐 *Access Our Web App*
 
-Visit: https://agrosense-henna.vercel.app
+Visit: https://agrosense-henna.vercel.app?id=%s
 
 Our web app provides:
 • 📊 Detailed market analysis
@@ -154,6 +154,13 @@ const (
 	STATE_WAITING_ADVICE   = "waiting_advice"
 	STATE_COLLECTING_FEEDBACK = "collecting_feedback"
 )
+
+// Demo User IDs for webapp access
+var DEMO_USER_IDS = []string{
+	"a7k9m2",
+	"x4p8q1", 
+	"z2n6r5",
+}
 
 // AI Service Types
 const (
